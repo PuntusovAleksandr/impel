@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<resources>
+  <string-array name="navigation_list">
+    <!--<item>Заметки</item>-->
+    <item>Архив</item>
+<!--    <item>Напоминания</item>
+    <item>Корзина</item>-->
+    <item>Категории</item>
+  </string-array>
+  <string-array name="sortable_columns_human_readable">
+    <item>Заголовкам</item>
+    <item>Дате создания</item>
+    <item>Дате последн. изменения</item>
+    <item>Дате напоминаний</item>
+  </string-array>
+  <string-array name="checked_items_behavior">
+    <item>Оставлять на месте</item>
+    <item>Помещать в конец списка</item>
+    <item>Помещать выше других выбранных пунктов</item>
+  </string-array>
+  <string-array name="colors_app">
+    <item>Отключено</item>
+    <item>Небольшой индикатор</item>
+    <item>Только в списке заметок</item>
+    <item>Полное</item>
+  </string-array>
+  <string-array name="colors_widget">
+    <item>Отключено</item>
+    <item>Небольшой индикатор</item>
+    <item>В списке заметок</item>
+  </string-array>
+  <string-array name="text_size">
+    <item>Самый маленький</item>
+    <item>Небольшой</item>
+    <item>Обычный</item>
+    <item>Крупный</item>
+    <item>Огромный</item>
+  </string-array>
+</resources>
