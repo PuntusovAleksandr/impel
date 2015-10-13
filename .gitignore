@@ -2,7 +2,7 @@
 *.apk
 *.ap_
 *.jar
-!omniNotes/libs/libGoogleAnalyticsServices.jar
+!impelNotes/libs/libGoogleAnalyticsServices.jar
 !gradle/wrapper/gradle-wrapper.jar
 
 # lint folder
