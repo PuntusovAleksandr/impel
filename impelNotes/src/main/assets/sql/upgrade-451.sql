@@ -36,7 +36,7 @@ CREATE
 		alarm INTEGER DEFAULT null,
 		latitude REAL,
 		longitude REAL,
-		category_id INTEGER DEFAUL null,
+		category_id INTEGER DEFAULT null,
 		locked INTEGER,  
 		checklist  INTEGER   
 	);
