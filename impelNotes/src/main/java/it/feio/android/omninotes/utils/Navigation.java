@@ -1,22 +1,23 @@
 package it.feio.android.omninotes.utils;
 
 import android.content.Context;
-import it.feio.android.omninotes.ImpelNotes;
-import it.feio.android.omninotes.R;
-import it.feio.android.omninotes.models.Category;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import it.feio.android.omninotes.ImpelNotes;
+import it.feio.android.omninotes.R;
+import it.feio.android.omninotes.models.Category;
 
 
 public class Navigation {
 
     public static final int NOTES = 0;
-    public static final int CATEGORY = 1;
-    public static final int ARCHIVE = 2;
-    public static final int REMINDERS = 3;
-    public static final int TRASH = 4;
-    public static final int UNCATEGORIZED = 5;
+    public static final int ARCHIVE = 1;
+    public static final int REMINDERS = 2;
+    public static final int TRASH = 3;
+    public static final int UNCATEGORIZED = 4;
+    public static final int CATEGORY = 5;
 
 
 
