@@ -34,27 +34,50 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Pair;
-import android.view.*;
+import android.view.DragEvent;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnDragListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
-import android.widget.*;
+import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.AutoCompleteTextView;
+import android.widget.CheckBox;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
+import android.widget.ScrollView;
+import android.widget.Toast;
+
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawable;
 import com.google.analytics.tracking.android.Fields;
 import com.google.analytics.tracking.android.MapBuilder;
 import com.neopixl.pixlui.components.edittext.EditText;
 import com.neopixl.pixlui.components.textview.TextView;
 import com.pushbullet.android.extension.MessagingExtension;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
 import de.keyboardsurfer.android.widget.crouton.Style;
 import it.feio.android.checklistview.ChecklistManager;
 import it.feio.android.checklistview.exceptions.ViewNotSupportedException;
@@ -63,7 +86,12 @@ import it.feio.android.checklistview.models.CheckListViewItem;
 import it.feio.android.omninotes.async.AttachmentTask;
 import it.feio.android.omninotes.async.SaveNoteTask;
 import it.feio.android.omninotes.db.DbHelper;
-import it.feio.android.omninotes.models.*;
+import it.feio.android.omninotes.models.Attachment;
+import it.feio.android.omninotes.models.Category;
+import it.feio.android.omninotes.models.Note;
+import it.feio.android.omninotes.models.ONStyle;
+import it.feio.android.omninotes.models.PasswordValidator;
+import it.feio.android.omninotes.models.Tag;
 import it.feio.android.omninotes.models.adapters.AttachmentAdapter;
 import it.feio.android.omninotes.models.adapters.NavDrawerCategoryAdapter;
 import it.feio.android.omninotes.models.adapters.PlacesAutoCompleteAdapter;
@@ -72,25 +100,31 @@ import it.feio.android.omninotes.models.listeners.OnGeoUtilResultListener;
 import it.feio.android.omninotes.models.listeners.OnNoteSaved;
 import it.feio.android.omninotes.models.listeners.OnReminderPickedListener;
 import it.feio.android.omninotes.models.views.ExpandableHeightGridView;
-import it.feio.android.omninotes.utils.*;
+import it.feio.android.omninotes.utils.AlphaManager;
+import it.feio.android.omninotes.utils.ConnectionManager;
+import it.feio.android.omninotes.utils.Constants;
 import it.feio.android.omninotes.utils.Display;
+import it.feio.android.omninotes.utils.FileHelper;
+import it.feio.android.omninotes.utils.Fonts;
+import it.feio.android.omninotes.utils.GeocodeHelper;
+import it.feio.android.omninotes.utils.IntentChecker;
+import it.feio.android.omninotes.utils.KeyboardUtils;
+import it.feio.android.omninotes.utils.ReminderHelper;
+import it.feio.android.omninotes.utils.ShortcutHelper;
+import it.feio.android.omninotes.utils.StorageManager;
+import it.feio.android.omninotes.utils.TagsHelper;
+import it.feio.android.omninotes.utils.TextHelper;
 import it.feio.android.omninotes.utils.date.DateHelper;
 import it.feio.android.omninotes.utils.date.ReminderPickers;
 import it.feio.android.pixlui.links.TextLinkClickListener;
 import roboguice.util.Ln;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
 
 import static com.nineoldandroids.view.ViewPropertyAnimator.animate;
 
 
 public class DetailFragment extends Fragment implements
         OnReminderPickedListener, TextLinkClickListener, OnTouchListener,
-        OnGlobalLayoutListener, OnAttachingFileListener, TextWatcher, CheckListChangedListener, OnNoteSaved, 
+        OnGlobalLayoutListener, OnAttachingFileListener, TextWatcher, CheckListChangedListener, OnNoteSaved,
         OnGeoUtilResultListener {
 
     private static final int TAKE_PHOTO = 1;
@@ -549,7 +583,7 @@ public class DetailFragment extends Fragment implements
                 if (Constants.MIME_TYPE_FILES.equals(attachment.getMime_type())) {
 
                     attachmentIntent = new Intent(Intent.ACTION_VIEW);
-                    attachmentIntent.setDataAndType(uri, StorageManager.getMimeType(getActivity(), 
+                    attachmentIntent.setDataAndType(uri, StorageManager.getMimeType(getActivity(),
                             attachment.getUri()));
                     attachmentIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent
                             .FLAG_GRANT_WRITE_URI_PERMISSION);
@@ -566,7 +600,7 @@ public class DetailFragment extends Fragment implements
                     // Title
                     noteTmp.setTitle(getNoteTitle());
                     noteTmp.setContent(getNoteContent());
-                    String title = it.feio.android.omninotes.utils.TextHelper.parseTitleAndContent(getActivity(), 
+                    String title = it.feio.android.omninotes.utils.TextHelper.parseTitleAndContent(getActivity(),
                             noteTmp)[0].toString();
                     // Images
                     int clickedImage = 0;
@@ -649,7 +683,7 @@ public class DetailFragment extends Fragment implements
         reminder_layout.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                int pickerType = prefs.getBoolean("settings_simple_calendar", false) ? ReminderPickers.TYPE_AOSP : 
+                int pickerType = prefs.getBoolean("settings_simple_calendar", false) ? ReminderPickers.TYPE_AOSP :
                         ReminderPickers.TYPE_GOOGLE;
                 ReminderPickers reminderPicker = new ReminderPickers(getActivity(), mFragment, pickerType);
                 Long presetDateTime = noteTmp.getAlarm() != null ? Long.parseLong(noteTmp.getAlarm()) : null;
@@ -1066,7 +1100,7 @@ public class DetailFragment extends Fragment implements
 
         // Inflate the popup_layout.xml
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
-        final View layout = inflater.inflate(R.layout.dialog_remove_checklist_layout, 
+        final View layout = inflater.inflate(R.layout.dialog_remove_checklist_layout,
                 (ViewGroup) getView().findViewById(R.id.layout_root));
 
         // Retrieves options checkboxes and initialize their values
@@ -1149,7 +1183,7 @@ public class DetailFragment extends Fragment implements
 
         final MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
                 .title(R.string.categorize_as)
-                .adapter(new NavDrawerCategoryAdapter(getActivity(), categories),null)
+                .adapter(new NavDrawerCategoryAdapter(getActivity(), categories), null)
                 .positiveText(R.string.add_category)
                 .negativeText(R.string.remove_category)
                 .callback(new MaterialDialog.ButtonCallback() {
@@ -1285,7 +1319,7 @@ public class DetailFragment extends Fragment implements
             attachmentUri = Uri.fromFile(f);
             takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, attachmentUri);
         }
-        String maxVideoSizeStr = "".equals(prefs.getString("settings_max_video_size", 
+        String maxVideoSizeStr = "".equals(prefs.getString("settings_max_video_size",
                 "")) ? "0" : prefs.getString("settings_max_video_size", "");
         int maxVideoSize = Integer.parseInt(maxVideoSizeStr);
         takeVideoIntent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, Long.valueOf(maxVideoSize * 1024 * 1024));
@@ -1707,13 +1741,14 @@ public class DetailFragment extends Fragment implements
             isPlayingView = v;
             startPlaying(uri);
             Drawable d = ((ImageView) v.findViewById(R.id.gridview_item_picture)).getDrawable();
-            if (BitmapDrawable.class.isAssignableFrom(d.getClass())) {
-                recordingBitmap = ((BitmapDrawable) d).getBitmap();
-            } else {
-                recordingBitmap = ((GlideBitmapDrawable)d.getCurrent()).getBitmap();
-            }
+            // FIXME: 10/20/15 fix me please!
+//            if (BitmapDrawable.class.isAssignableFrom(d.getClass())) {
+//                recordingBitmap = ((BitmapDrawable) d).getBitmap();
+//            } else {
+//                recordingBitmap = ((GlideBitmapDrawable) d.getCurrent()).getBitmap();
+//            }
             ((ImageView) v.findViewById(R.id.gridview_item_picture)).setImageBitmap(ThumbnailUtils.extractThumbnail
-                    (BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.stop), 
+                    (BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.stop),
                             Constants.THUMBNAIL_SIZE, Constants.THUMBNAIL_SIZE));
         }
     }
@@ -1863,7 +1898,7 @@ public class DetailFragment extends Fragment implements
                                         getActivity(),
                                         intent,
                                         new String[]{PackageManager.FEATURE_CAMERA})) {
-                            getMainActivity().showMessage(R.string.no_application_can_perform_this_action, 
+                            getMainActivity().showMessage(R.string.no_application_can_perform_this_action,
                                     ONStyle.ALERT);
 
                         } else {
@@ -1880,10 +1915,10 @@ public class DetailFragment extends Fragment implements
                                     .getSystemService(Activity.CLIPBOARD_SERVICE);
                             clipboard.setText("text to clip");
                         } else {
-                            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) 
+                            android.content.ClipboardManager clipboard = (android.content.ClipboardManager)
                                     getActivity()
-                                    .getSystemService(Activity.CLIPBOARD_SERVICE);
-                            android.content.ClipData clip = android.content.ClipData.newPlainText("text label", 
+                                            .getSystemService(Activity.CLIPBOARD_SERVICE);
+                            android.content.ClipData clip = android.content.ClipData.newPlainText("text label",
                                     clickedString);
                             clipboard.setPrimaryClip(clip);
                         }
@@ -1931,7 +1966,7 @@ public class DetailFragment extends Fragment implements
                         Bundle b = new Bundle();
                         b.putParcelable(Constants.INTENT_NOTE, new Note());
                         mDetailFragment.setArguments(b);
-                        transaction.replace(R.id.fragment_container, mDetailFragment, 
+                        transaction.replace(R.id.fragment_container, mDetailFragment,
                                 getMainActivity().FRAGMENT_DETAIL_TAG).addToBackStack(getMainActivity()
                                 .FRAGMENT_DETAIL_TAG).commit();
                     }
@@ -2016,7 +2051,7 @@ public class DetailFragment extends Fragment implements
     public void onReminderPicked(long reminder) {
         noteTmp.setAlarm(reminder);
         if (mFragment.isAdded()) {
-            datetime.setText(getString(R.string.alarm_set_on) + " " + DateHelper.getDateTimeShort(getActivity(), 
+            datetime.setText(getString(R.string.alarm_set_on) + " " + DateHelper.getDateTimeShort(getActivity(),
                     reminder));
         }
     }
@@ -2229,9 +2264,9 @@ public class DetailFragment extends Fragment implements
                     attachmentDialog.dismiss();
                     break;
                 case R.id.pushbullet:
-                    MessagingExtension.mirrorMessage(getActivity(), getString(R.string.app_name), 
+                    MessagingExtension.mirrorMessage(getActivity(), getString(R.string.app_name),
                             getString(R.string.pushbullet),
-                            getNoteContent(), BitmapFactory.decodeResource(getResources(), 
+                            getNoteContent(), BitmapFactory.decodeResource(getResources(),
                                     R.drawable.ic_stat_notification_icon),
                             null, 0);
                     attachmentDialog.dismiss();
