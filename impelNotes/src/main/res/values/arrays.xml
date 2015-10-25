@@ -18,6 +18,14 @@
         <item>Uncategorized</item>
     </string-array>
 
+
+    <string-array name="menu_navigation_drawer_list">
+        <item>Full version</item>
+        <item>Send a question</item>
+        <item>Evaluate the application</item>
+        <item>Socia1 networks</item>
+    </string-array>
+
     <integer-array name="navigation_list_icons">
         <item>@drawable/ic_file_document_grey600_48dp</item>
         <item>@drawable/ic_archive_grey600_48dp</item>

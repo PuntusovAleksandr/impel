@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:title="">
+        <menu>
+            <item
+                android:id="@+id/navigation_drawer_full_version"
+                android:title="Full version" />
+            <item
+                android:id="@+id/navigation_drawer_send_a_question"
+                android:title="Send a question" />
+            <item
+                android:id="@+id/navigation_drawer_evaluate_the_paplication"
+                android:title="Evaluate the application" />
+            <item
+                android:id="@+id/navigation_drawer_socia1_networks"
+                android:title="Socia1 networks" />
+
+        </menu>
+    </item>
+
+
+</menu>

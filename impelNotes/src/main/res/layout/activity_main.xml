@@ -1,10 +1,8 @@
-
-
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:clipToPadding="false"
     android:fitsSystemWindows="false"
     tools:context="it.feio.android.omninotes.MainActivity">
@@ -12,7 +10,8 @@
     <android.support.v4.widget.DrawerLayout
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        tools:openDrawer="start">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -36,7 +35,8 @@
                 android:background="@drawable/toolbar_dropshadow"
                 android:layout_below="@id/toolbar"/>
 
-            <include android:id="@+id/crouton_handle" layout="@layout/crouton_handle" />
+            <include android:id="@+id/crouton_handle"
+                layout="@layout/crouton_handle" />
 
         </RelativeLayout>
 
@@ -48,7 +48,8 @@
             android:layout_gravity="left|start"
             android:fitsSystemWindows="true"
             android:orientation="vertical"
-            tools:layout="@layout/abc_action_menu_layout" />
+            tools:layout="@layout/abc_action_menu_layout"/>
+
 
     </android.support.v4.widget.DrawerLayout>
 
